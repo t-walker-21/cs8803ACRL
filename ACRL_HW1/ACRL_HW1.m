@@ -101,17 +101,17 @@ end
 % model: parameters and features of the dynamics model (simulate_f)
 % idx: how we index into features and state using named indexes
 
-u_prev_mult = 0.0000500; u_delta_prev_mult = 0.000200;
-ned_dot_mult = 0.0000300; ned_mult = 0.00005000;
-pqr_mult = 0.00000600; q_mult = 0.0000700;
-always1state_mult = 0.00001000;
+u_prev_mult = 0; u_delta_prev_mult = 1000;
+ned_dot_mult = 1; ned_mult = 1;
+pqr_mult = 1; q_mult = 1;
+always1state_mult = 0;
 
 reward.state_multipliers = [ u_prev_mult * ones(1,4)   u_delta_prev_mult * ones(1,4)  ned_dot_mult * ones(1,3)  ned_mult*ones(1,3)  ...
 	pqr_mult * ones(1,3)  q_mult * ones(1,3)  always1state_mult * ones(1,1)]';
 reward.input_multipliers = ones(4,1)*0;
 
 
-Ps = zeros(length(reward.state_multipliers));
+%Ps = ones(length(reward.state_multipliers));
 
 nominal_state = target_hover_state; nominal_inputs = zeros(4,1);
 target_state_time_t = target_hover_state; target_state_time_tplus1 = target_hover_state;
@@ -125,10 +125,11 @@ simulate_f = @f_heli;
 
 Q = diag(reward.state_multipliers) * dt;
 R = diag(reward.input_multipliers) * dt;
+Ps = Q;
 
 num_steps = 100;% make sure it is sufficient for K to have converged
 for i=1:num_steps
-	K{i} = -1 * inv(R + transpose(B)*Ps*B) * transpose(B)*Ps*A; 
+	K{i} = -1 *(R + transpose(B)*Ps*B)\(transpose(B)*Ps*A); 
 
 	Ps = Q + transpose(K{i})*R*K{i} + transpose(A + B*K{i})*Ps*(A + B*K{i});
 end
@@ -283,7 +284,7 @@ end
 %% configuration by performing search 
 %% over a space of policies. Use the 'real' non-linear model, not linearized dynamics.  
 %% We suggest starting with a simple linear controller class, but you might
-%% consider somewhat more sophisticated ones then that.
+%% consider somewhat more sophisticated ones then that.(black box optimization) fminsearch
 
 %% Q1h: Build the same controller as above but now build it using the latency described above. Can you build a linear
 %% controller more robust to various latencies then the LQR one? Plot the range of latencies for which the LQR and
