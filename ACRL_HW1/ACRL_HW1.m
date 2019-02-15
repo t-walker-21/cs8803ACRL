@@ -108,7 +108,7 @@ always1state_mult = 0.00001000;
 
 reward.state_multipliers = [ u_prev_mult * ones(1,4)   u_delta_prev_mult * ones(1,4)  ned_dot_mult * ones(1,3)  ned_mult*ones(1,3)  ...
 	pqr_mult * ones(1,3)  q_mult * ones(1,3)  always1state_mult * ones(1,1)]';
-reward.input_multipliers = ones(4,1)*1;
+reward.input_multipliers = ones(4,1)*0;
 
 
 Ps = zeros(length(reward.state_multipliers));
