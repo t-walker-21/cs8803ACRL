@@ -196,9 +196,9 @@ figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective
 %%          (ii) the smallest rotation around x, y, and z that makes the
 %%          controller perform poorly
 
-start_ned = [0; 0; 0];
+start_ned = [0; 0; 0]; %20n 10e 50d
 rotation_axis = [0; 0; 0];
-rotation_angle = 0; % radians
+rotation_angle = 2; % radians
 start_q = [sin(rotation_angle/2)*rotation_axis; cos(rotation_angle/2)];
 
 start_state = target_hover_state;
@@ -214,7 +214,7 @@ for t=1:H
 	% simulate:
 	x(:,t+1) = f_heli(x(:,t), delta_u, dt, model, idx);
 end
-%figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with perturbed initial state');
+figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with perturbed initial state');
 %figure; plot(x(idx.q,:)'); legend('qx', 'qy', 'qz', 'qw'); title('K_{ss} hover with perturbed initial state');
 %figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective'); title('K_{ss} hover with perturbed initial state');
 
@@ -239,7 +239,7 @@ start_state(idx.ned) = start_ned;
 start_state(idx.q) = start_q;
 
 
-clipping_distance =  50;%% your pick
+clipping_distance =  100;%% your pick
 x(:,1) = start_state;
 for t=1:H
 	% control law:
@@ -250,9 +250,9 @@ for t=1:H
 	noise_F_T = randn(6,1)*1;
 	x(:,t+1) = f_heli(x(:,t), delta_u, dt, model, idx, noise_F_T);
 end
-%figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with perturbed initial state and clipping');
-%figure; plot(x(idx.q,:)'); legend('qx', 'qy', 'qz', 'qw'); title('K_{ss} hover with perturbed initial state and clipping');
-%figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective'); title('K_{ss} hover with perturbed initial state and clipping');
+figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with perturbed initial state and clipping');
+figure; plot(x(idx.q,:)'); legend('qx', 'qy', 'qz', 'qw'); title('K_{ss} hover with perturbed initial state and clipping');
+figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective'); title('K_{ss} hover with perturbed initial state and clipping');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,7 +263,7 @@ end
 %% find out the smallest (discrete) latency that makes the controller
 %% perform poorly; hand in plot of q(uaternion) and u_prev + the latency value
 
-latency = 25;%% your pick
+latency = 3;%% your pick
 for i=1:latency+1
 	x(:,i) = target_hover_state;
 end
@@ -276,9 +276,9 @@ for t=latency+1:H
 	noise_F_T = randn(6,1)*1;
 	x(:,t+1) = f_heli(x(:,t), delta_u, dt, model, idx, noise_F_T);
 end
-%figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with latency');
-%figure; plot(x(idx.q,:)'); legend('qx', 'qy', 'qz', 'qw'); title('K_{ss} hover with latency');
-%figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective'); title('K_{ss} hover with latency');
+figure; plot(x(idx.ned,:)'); legend('north', 'east', 'down'); title('K_{ss} hover with latency');
+figure; plot(x(idx.q,:)'); legend('qx', 'qy', 'qz', 'qw'); title('K_{ss} hover with latency');
+figure; plot(x(idx.u_prev,:)'); legend('aileron','elevator','rudder','collective'); title('K_{ss} hover with latency');
 
 %% Q1g: Build a controller about the hover 
 %% configuration by performing search 
