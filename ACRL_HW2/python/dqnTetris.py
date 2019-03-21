@@ -3,11 +3,15 @@ import socket
 import time as pytime
 import random
 import gym
+import cv2
 import numpy as np
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
+from keras.layers.convolutional import Conv2D
+from keras.layers import MaxPooling2D
+from keras.layers import Flatten
 
 EPISODES = 100000
 
@@ -33,6 +37,20 @@ while True:
     done, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     print "done: ", done"""
 
+
+#make a convolutional feature extractor!
+
+feats = Sequential()
+feats.add(Conv2D(16,(3,3),activation='relu',input_shape=(105,50,3)))
+feats.add(MaxPooling2D((2,2)))
+feats.add(Conv2D(32,(3,3),activation='relu'))
+feats.add(MaxPooling2D((2,2)))
+feats.add(Conv2D(64,(3,3),activation='relu'))
+feats.add(MaxPooling2D((2,2)))
+feats.add(Flatten())
+
+
+
 class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
@@ -48,8 +66,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(25, input_dim=self.state_size, activation='sigmoid'))
-        model.add(Dense(25, activation='sigmoid'))
+        model.add(Dense(512, input_dim=self.state_size, activation='sigmoid'))
+        model.add(Dense(512, activation='sigmoid'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -87,18 +105,45 @@ class DQNAgent:
 
 def stringStateToNN(state):
   st = []
-
+  
   for s in state:
    st.append(s)
+  
+  st2 = st[:]
+  st.reverse()
+  print "here"
+  #piece = st[0]
+  st = np.array(st,dtype=np.float32).reshape((21,10))
+  st = np.fliplr(st)
+  stIm = np.zeros((21,10,3))
+  #print stIm.shape
+  #print st.shape
+  stIm[:,:,0] = st
+  stIm[:,:,1] = st
+  stIm[:,:,2] = st
 
-  return np.array(st) 
+  stIm = cv2.resize(stIm,(50,105))
+
+  X = []
+  X.append(stIm)
+  X = np.array(X)
+  #print X.shape
+  out = feats.predict(X)[0]
+  #print out.shape
+  cv2.imshow("stateRaw",stIm)
+  cv2.waitKey(1)
+
+  #print st
+    
+
+  return out 
 
 
 if __name__ == "__main__":
 
 
-    state_size = 211#env.observation_space.shape
-    action_size = 20
+    state_size = 2816#210#env.observation_space.shape
+    action_size = 20#40
     
     
     agent = DQNAgent(state_size, action_size)
@@ -107,10 +152,10 @@ if __name__ == "__main__":
     batch_size = 64
 
     for e in range(EPISODES):
-        state = stringStateToNN("0"*state_size) #initial state
-	
+        state = stringStateToNN(("0"*(210))) #initial state of no pieces on board
+        
         state = np.reshape(state, [1, state_size])
-        for time in range(1000):
+        for time in range(5000):
             #env.render()
             action = agent.act(state)
             #pytime.sleep()
@@ -148,7 +193,7 @@ if __name__ == "__main__":
                 break
 
             
-            if time > 995:
+            if time > 4995:
                 print "I beat the game!"
                 exit()
 

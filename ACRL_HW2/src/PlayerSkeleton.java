@@ -52,7 +52,7 @@ public class PlayerSkeleton extends client {
 
 			for (int j = 0; j < 10;j++)
 			{
-				for (int k = 0; k < 2; k++)
+				for (int k = 0; k < 4; k++)
 				{
 					actionMap.put(i++, new int[] {j,k});
 					
@@ -69,7 +69,7 @@ public class PlayerSkeleton extends client {
 	public String stateToString(State s) //takes in board state and converts to string
 	{
 		String str = "";
-		str += Integer.toString(s.getNextPiece());
+		//str += Integer.toString(s.getNextPiece());
 
 		for (int i = 0;i < s.getField().length;i++)
 		{
@@ -99,7 +99,7 @@ public class PlayerSkeleton extends client {
 
 		while (true){
 			s = new State();
-			TFrame t = new TFrame(s);
+			//TFrame t = new TFrame(s);
 			int linesCleared = 0;
 			String reward;
 			String done = "false";
@@ -114,6 +114,7 @@ public class PlayerSkeleton extends client {
 			mv[1] = dec[0];
 			try{
 			s.makeMove(mv);
+			//s.makeMove(action);
 			}
 
 			catch(ArrayIndexOutOfBoundsException e) //agent attempted illegal move
@@ -149,8 +150,8 @@ public class PlayerSkeleton extends client {
 			String nxt_state = p.stateToString(s);
 
 			//rendering env
-			s.draw();
-			s.drawNext(0,0);
+			//s.draw();
+			//s.drawNext(0,0);
 			//rendering env
 
 			//send next_state,reward,and done back to python
