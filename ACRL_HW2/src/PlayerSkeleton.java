@@ -1,5 +1,7 @@
 import java.util.*;
 import java.util.concurrent.DelayQueue;
+
+
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.SocketException;
@@ -81,7 +83,24 @@ public class PlayerSkeleton extends client {
 
 		while(!s.hasLost()) {
 			int action = p.pickMove(s,s.legalMoves());
-			s.makeMove(action);
+			
+			int[] mv = new int[2];
+			mv[0] = 0;
+			mv[1] = action;
+			try{
+			s.makeMove(mv);
+			}
+
+			catch(ArrayIndexOutOfBoundsException e) //agent attempted illegal move
+			{
+				reward = "-5"; //penalize agent for attemping illegal move
+				p.sendToPython(p.stateToString(s)); //because this was an illegal move, nothing changed
+				p.sendToPython(reward);
+				p.sendToPython(done);
+				System.out.println("caught execption!");
+				continue;
+			}
+
 			reward = "0";
 
 			if (p.boardMaxHeight(s) - maxHeight > 0 && maxHeight != 0)
@@ -113,8 +132,9 @@ public class PlayerSkeleton extends client {
 			p.sendToPython(nxt_state);
 			p.sendToPython(reward);
 			p.sendToPython(done);
+			System.out.println("agent cleared: " + linesCleared + " lines!");
 		}
-		System.out.println("agent cleared: " + linesCleared + " lines!");
+		
 		
 		
 		}

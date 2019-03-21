@@ -41,7 +41,7 @@ class DQNAgent:
         self.gamma = 0.5    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.0
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.9995
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
 
     state_size = 210#env.observation_space.shape
-    action_size = 9
+    action_size = 40
     
     
     agent = DQNAgent(state_size, action_size)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         state = stringStateToNN("0"*state_size) #initial state
 	
         state = np.reshape(state, [1, state_size])
-        for time in range(500):
+        for time in range(1000):
             #env.render()
             action = agent.act(state)
             #pytime.sleep()
@@ -145,13 +145,10 @@ if __name__ == "__main__":
            
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, time, agent.epsilon))
-                if time >= 600:
-                    print "score  reached after " , e
-                    exit()
                 break
 
             
-            if time > 450:
+            if time > 995:
                 print "I beat the game!"
                 exit()
 
