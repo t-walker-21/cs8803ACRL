@@ -29,7 +29,7 @@ public class client {
     {
         DatagramPacket packet;
         packet = new DatagramPacket(new byte[10], (new byte[10]).length);
-        System.out.println("waiting for response");
+        //System.out.println("waiting for response");
         socket2.receive(packet);
         String received = new String(packet.getData(), 0, packet.getLength());
         return Integer.parseInt(received);

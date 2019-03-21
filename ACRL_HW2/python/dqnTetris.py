@@ -40,7 +40,7 @@ class DQNAgent:
         self.memory = deque(maxlen=2000)
         self.gamma = 0.5    # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
+        self.epsilon_min = 0.0
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
@@ -48,8 +48,8 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(500, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(500, activation='relu'))
+        model.add(Dense(25, input_dim=self.state_size, activation='sigmoid'))
+        model.add(Dense(25, activation='sigmoid'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -60,6 +60,7 @@ class DQNAgent:
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
+            print "random!!"
             return random.randrange(self.action_size)
         act_values = self.model.predict(state)
         return np.argmax(act_values[0])  # returns action
@@ -96,14 +97,14 @@ def stringStateToNN(state):
 if __name__ == "__main__":
 
 
-    state_size = 50#env.observation_space.shape
+    state_size = 210#env.observation_space.shape
     action_size = 9
     
     
     agent = DQNAgent(state_size, action_size)
     # agent.load("./save/cartpole-dqn.h5")
     done = False
-    batch_size = 4
+    batch_size = 64
 
     for e in range(EPISODES):
         state = stringStateToNN("0"*state_size) #initial state
@@ -134,6 +135,8 @@ if __name__ == "__main__":
             if (reward == 5):
                 print "line cleared!!"
 
+            print "I've been alive for: " , time
+
             #reward = reward if not done else -10
             next_state = stringStateToNN(nxtState)
             next_state = np.reshape(next_state, [1, state_size])
@@ -142,9 +145,15 @@ if __name__ == "__main__":
            
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, time, agent.epsilon))
+                if time >= 600:
+                    print "score  reached after " , e
+                    exit()
                 break
 
             
+            if time > 450:
+                print "I beat the game!"
+                exit()
 
             if len(agent.memory) > batch_size:
                 agent.replay(batch_size)

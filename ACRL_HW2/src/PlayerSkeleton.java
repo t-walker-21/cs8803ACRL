@@ -16,8 +16,26 @@ public class PlayerSkeleton extends client {
 		//String strState = stateToString(s);
 		int action = recvFromPython();
 		
-		System.out.println(" move chosen --> " + action);
+		//System.out.println(" move chosen --> " + action);
 		return action;
+	}
+
+	public int boardMaxHeight(State s)
+	{
+		int max = 0;
+		for (int i = 0;i < s.getField().length;i++)
+		{
+			for (int j = 0;j < s.getField()[0].length;j++)
+			{
+				//System.out.println(s.getField()[i][j]);
+				if (s.getField()[i][j] != 0) //record row where this occured
+				{
+					max = i;
+				}
+
+			}
+		}
+		return max;
 	}
 
 	public PlayerSkeleton() throws SocketException, UnknownHostException, IOException
@@ -55,15 +73,23 @@ public class PlayerSkeleton extends client {
 
 		while (true){
 			s = new State();
-			//TFrame t = new TFrame(s);
+			TFrame t = new TFrame(s);
 			int linesCleared = 0;
 			String reward;
 			String done = "false";
+			int maxHeight = 0;
 
 		while(!s.hasLost()) {
 			int action = p.pickMove(s,s.legalMoves());
 			s.makeMove(action);
 			reward = "0";
+
+			if (p.boardMaxHeight(s) - maxHeight > 0 && maxHeight != 0)
+			{
+				reward = "-1";
+			}
+			maxHeight = p.boardMaxHeight(s);
+
 			if (linesCleared != s.getRowsCleared())
 			{
 				reward = "5";
@@ -71,16 +97,16 @@ public class PlayerSkeleton extends client {
 			}
 			else if(s.hasLost())
 			{
-				reward = "-1";
+				reward = "-3";
 				done = "true";
 			}
 			
-			System.out.println("Your reward is: " + reward);
+			//System.out.println("Your reward is: " + reward);
 			String nxt_state = p.stateToString(s);
 
 			//rendering env
-			//s.draw();
-			//s.drawNext(0,0);
+			s.draw();
+			s.drawNext(0,0);
 			//rendering env
 
 			//send next_state,reward,and done back to python
@@ -88,6 +114,7 @@ public class PlayerSkeleton extends client {
 			p.sendToPython(reward);
 			p.sendToPython(done);
 		}
+		System.out.println("agent cleared: " + linesCleared + " lines!");
 		
 		
 		}
