@@ -97,8 +97,8 @@ def stringStateToNN(state):
 if __name__ == "__main__":
 
 
-    state_size = 210#env.observation_space.shape
-    action_size = 40
+    state_size = 211#env.observation_space.shape
+    action_size = 20
     
     
     agent = DQNAgent(state_size, action_size)

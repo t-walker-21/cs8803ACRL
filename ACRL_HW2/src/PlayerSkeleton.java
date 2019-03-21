@@ -2,6 +2,7 @@ import java.util.*;
 import java.util.concurrent.DelayQueue;
 
 
+
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.SocketException;
@@ -22,6 +23,8 @@ public class PlayerSkeleton extends client {
 		return action;
 	}
 
+	public HashMap<Integer,int[]> actionMap;
+
 	public int boardMaxHeight(State s)
 	{
 		int max = 0;
@@ -41,11 +44,32 @@ public class PlayerSkeleton extends client {
 	}
 
 	public PlayerSkeleton() throws SocketException, UnknownHostException, IOException
-	{}
+	{
+		//populate hashmap
+		actionMap = new HashMap<>();
+
+			int i = 0;
+
+			for (int j = 0; j < 10;j++)
+			{
+				for (int k = 0; k < 2; k++)
+				{
+					actionMap.put(i++, new int[] {j,k});
+					
+				}
+			}
+			
+		
+		//i = 5;
+		//System.out.println(actionMap.get(i)[0] + " " + actionMap.get(i)[1]);
+
+		
+	}
 
 	public String stateToString(State s) //takes in board state and converts to string
 	{
 		String str = "";
+		str += Integer.toString(s.getNextPiece());
 
 		for (int i = 0;i < s.getField().length;i++)
 		{
@@ -84,9 +108,10 @@ public class PlayerSkeleton extends client {
 		while(!s.hasLost()) {
 			int action = p.pickMove(s,s.legalMoves());
 			
+			int [] dec = p.actionMap.get(action);
 			int[] mv = new int[2];
-			mv[0] = 0;
-			mv[1] = action;
+			mv[0] = dec[1];
+			mv[1] = dec[0];
 			try{
 			s.makeMove(mv);
 			}
