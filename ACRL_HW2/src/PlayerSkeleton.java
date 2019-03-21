@@ -43,9 +43,17 @@ public class PlayerSkeleton extends client {
 	public PlayerSkeleton() throws SocketException, UnknownHostException, IOException
 	{}
 
-	public String stateToString(State s) //takes in board state and converts to string
+	public String stateToString(State s) //takes in board state (contours) and converts to string
 	{
 		String str = "";
+		int[] heights = new int[10];
+
+		for (int i = 0; i < 10; i++)
+		{
+			heights[i] = 0;
+		}
+
+		//System.out.println("I LEN" + s.getField().length);
 
 		for (int i = 0;i < s.getField().length;i++)
 		{
@@ -54,17 +62,22 @@ public class PlayerSkeleton extends client {
 				//System.out.println(s.getField()[i][j]);
 				if (s.getField()[i][j] != 0)
 				{
-					str += "1";
+					if (heights[j] < i)
+					{
+						heights[j] = i;
+					}
 				}
 
-				else
-				{
-					str += "0";
-				}
 
 			}
 		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			str += Integer.toString(heights[i]) + ",";
+		}
 		//System.out.println(str.length());
+		//System.out.println(str);
 		return str;
 	}
 
@@ -88,7 +101,7 @@ public class PlayerSkeleton extends client {
 			mv[0] = 0;
 			mv[1] = action;
 			try{
-			s.makeMove(mv);
+			s.makeMove(action);
 			}
 
 			catch(ArrayIndexOutOfBoundsException e) //agent attempted illegal move

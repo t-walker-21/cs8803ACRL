@@ -41,7 +41,7 @@ class DQNAgent:
         self.gamma = 0.5    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.0
-        self.epsilon_decay = 0.9995
+        self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
 
@@ -87,18 +87,23 @@ class DQNAgent:
 
 def stringStateToNN(state):
   st = []
-
+  state = state.split(",")
+  #print "corrected state: " , state
   for s in state:
+   if s == "":
+       continue
+   s = int(s) / 21.0
    st.append(s)
 
+  #print "state is: " , st
   return np.array(st) 
 
 
 if __name__ == "__main__":
 
 
-    state_size = 210#env.observation_space.shape
-    action_size = 40
+    state_size = 10#env.observation_space.shape
+    action_size = 20
     
     
     agent = DQNAgent(state_size, action_size)
@@ -107,7 +112,7 @@ if __name__ == "__main__":
     batch_size = 64
 
     for e in range(EPISODES):
-        state = stringStateToNN("0"*state_size) #initial state
+        state = stringStateToNN("0,"*state_size) #initial state
 	
         state = np.reshape(state, [1, state_size])
         for time in range(1000):
