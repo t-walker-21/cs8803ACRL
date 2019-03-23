@@ -92,18 +92,18 @@ def stringStateToNN(state):
   for s in state:
    if s == "":
        continue
-   s = int(s) / 21.0
+   s = int(s) / 1.0
    st.append(s)
 
-  #print "state is: " , st
+  print "state is: " , st
   return np.array(st) 
 
 
 if __name__ == "__main__":
 
 
-    state_size = 10#env.observation_space.shape
-    action_size = 20
+    state_size = 9#env.observation_space.shape
+    action_size = 40
     
     
     agent = DQNAgent(state_size, action_size)

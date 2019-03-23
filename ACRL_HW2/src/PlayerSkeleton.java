@@ -22,6 +22,8 @@ public class PlayerSkeleton extends client {
 		return action;
 	}
 
+	public HashMap<Integer,int[]> actionMap;
+
 	public int boardMaxHeight(State s)
 	{
 		int max = 0;
@@ -41,12 +43,32 @@ public class PlayerSkeleton extends client {
 	}
 
 	public PlayerSkeleton() throws SocketException, UnknownHostException, IOException
-	{}
+	{
+		//populate hashmap
+		actionMap = new HashMap<>();
+
+			int i = 0;
+
+			for (int j = 0; j < 4;j++)
+			{
+				for (int k = 0; k < 10; k++)
+				{
+					actionMap.put(i++, new int[] {j,k});
+					
+				}
+			}
+			
+		
+		//i = 5;
+		//System.out.println(actionMap.get(i)[0] + " " + actionMap.get(i)[1]);
+		
+}
 
 	public String stateToString(State s) //takes in board state (contours) and converts to string
 	{
 		String str = "";
 		int[] heights = new int[10];
+		int[] contours = new int[9];
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -72,9 +94,23 @@ public class PlayerSkeleton extends client {
 			}
 		}
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 9; i++)
 		{
-			str += Integer.toString(heights[i]) + ",";
+			contours[i] = heights[i+1] - heights[i];
+			if (contours[i] < 0)
+			{
+				contours[i] = -1;
+			}
+
+			else if (contours[i] > 0)
+			{
+				contours[i] = 1;
+			}
+		}
+
+		for (int i = 0; i < 9; i++)
+		{
+			str += Integer.toString(contours[i]) + ",";
 		}
 		//System.out.println(str.length());
 		//System.out.println(str);
@@ -97,12 +133,14 @@ public class PlayerSkeleton extends client {
 		while(!s.hasLost()) {
 			int action = p.pickMove(s,s.legalMoves());
 			
+			int [] dec = p.actionMap.get(action);
 			int[] mv = new int[2];
-			mv[0] = 0;
-			mv[1] = action;
+			mv[0] = dec[0];
+			mv[1] = dec[1];
 			try{
 			s.makeMove(action);
 			}
+
 
 			catch(ArrayIndexOutOfBoundsException e) //agent attempted illegal move
 			{
