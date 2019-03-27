@@ -166,7 +166,7 @@ public class State {
 	
 	//random integer, returns 0-6
 	private int randomPiece() {
-		return (int)(Math.random()*2);
+		return (int)(Math.random()*N_PIECES);
 	}
 	
 

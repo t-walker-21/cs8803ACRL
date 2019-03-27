@@ -231,7 +231,7 @@ public class PlayerSkeleton extends client {
 
 			if (p.boardMaxHeight(s) - maxHeight > 0 && maxHeight != 0)
 			{
-				reward = "0";
+				reward = "-1";
 			}
 			maxHeight = p.boardMaxHeight(s);
 

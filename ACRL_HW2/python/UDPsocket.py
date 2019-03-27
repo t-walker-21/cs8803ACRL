@@ -13,12 +13,13 @@ sock2 = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
 while True:
+    nxtState, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+    print "next state: ", nxtState
     resp = str(input())
     print "sending response: " , resp
     sock2.sendto(resp,(UDP_IP,5006))
 
-    nxtState, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-    print "next state: ", nxtState
+    
     reward, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     print "reward: ", reward
     done, addr = sock.recvfrom(1024) # buffer size is 1024 bytes

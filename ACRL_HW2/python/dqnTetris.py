@@ -42,16 +42,16 @@ class DQNAgent:
         self.gamma = 0.5    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.0
-        self.epsilon_decay = 0.9995
+        self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(8, input_dim=self.state_size, activation='sigmoid'))
-        #model.add(Dense(50, activation='sigmoid'))
-        #model.add(Dense(50, activation='sigmoid'))
+        #model.add(Dense(8, input_dim=self.state_size, activation='sigmoid'))
+        model.add(Dense(50, activation='sigmoid'))
+        model.add(Dense(50, activation='sigmoid'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -104,7 +104,7 @@ def stringStateToNN(state):
 if __name__ == "__main__":
 
 
-    state_size = 10#env.observation_space.shape
+    state_size = 20#env.observation_space.shape
     action_size = 40
     
     
@@ -164,7 +164,7 @@ if __name__ == "__main__":
             
             if time > 995:
                 print "I beat the game!"
-                agent.save("./dqn4.h5")
+                agent.save("./dqn6.h5")
                 exit()
 
             if len(agent.memory) > batch_size:
@@ -172,4 +172,4 @@ if __name__ == "__main__":
                 agent.replay(batch_size)
 
             if time % 20 == 0:
-                agent.save("./dqn4.h5")
+                agent.save("./dqn6.h5")
