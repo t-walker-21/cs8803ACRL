@@ -67,6 +67,7 @@ public class PlayerSkeleton extends client {
 	public String stateToString(State s) //takes in board state (contours) and converts to string
 	{
 		String str = "";
+		str += Integer.toString(s.getNextPiece()) + ",";
 		int[] heights = new int[10];
 		int[] contours = new int[9];
 
@@ -94,6 +95,13 @@ public class PlayerSkeleton extends client {
 			}
 		}
 
+		//System.out.println("heights");
+		//for (int i = 0; i < 10; i++)
+		//{
+			//System.out.print(heights[i]);
+		//}
+		
+
 		for (int i = 0; i < 9; i++)
 		{
 			contours[i] = heights[i+1] - heights[i];
@@ -112,9 +120,68 @@ public class PlayerSkeleton extends client {
 		{
 			str += Integer.toString(contours[i]) + ",";
 		}
+
+		for (int i = 0;i < 10; i++)
+		{
+			str+= Integer.toString(heights[i]) + ",";
+		}
 		//System.out.println(str.length());
-		//System.out.println(str);
+		System.out.println(str);
+
+		
 		return str;
+	}
+
+	public int getBoardHoles(State s)
+	{
+		int holes = 0;
+
+		int[] heights = new int[10];
+
+		for (int i = 0; i < 10; i++)
+		{
+			heights[i] = 0;
+		}
+
+		for (int i = 0;i < s.getField().length;i++)
+		{
+			for (int j = 0;j < s.getField()[0].length;j++)
+			{
+				//System.out.println(s.getField()[i][j]);
+				if (s.getField()[i][j] != 0)
+				{
+					if (heights[j] < i)
+					{
+						heights[j] = i;
+					}
+				}
+			}
+		}
+
+		//System.out.println("heights");
+		/*for (int i = 0; i < 10; i++)
+		{
+			System.out.print(heights[i] + ",");
+		}*/
+
+		int[][] field = s.getField();
+
+		for (int i = 0; i < 10; i++)
+		{
+			for (int j = heights[i];j > 0; j--)
+			{
+				if (field[j][i] == 0)
+				{
+					holes++;
+					break;
+				}
+			}
+			
+		}
+
+		//System.out.println("holes --> " + holes);
+
+		return holes;
 	}
 
 	
@@ -129,8 +196,16 @@ public class PlayerSkeleton extends client {
 			String reward;
 			String done = "false";
 			int maxHeight = 0;
+			int holes = 0;
+			//System.out.print(s.getNextPiece());
+			
 
 		while(!s.hasLost()) {
+
+			//send game state to agent
+			p.sendToPython(p.stateToString(s));
+			//System.exit(0);
+			
 			int action = p.pickMove(s,s.legalMoves());
 			
 			int [] dec = p.actionMap.get(action);
@@ -144,11 +219,11 @@ public class PlayerSkeleton extends client {
 
 			catch(ArrayIndexOutOfBoundsException e) //agent attempted illegal move
 			{
-				reward = "-5"; //penalize agent for attemping illegal move
-				p.sendToPython(p.stateToString(s)); //because this was an illegal move, nothing changed
+				reward = "-10"; //penalize agent for attemping illegal move
+				//p.sendToPython(p.stateToString(s)); //because this was an illegal move, nothing changed
 				p.sendToPython(reward);
 				p.sendToPython(done);
-				System.out.println("caught execption!");
+				//System.out.println("caught execption!");
 				continue;
 			}
 
@@ -156,9 +231,15 @@ public class PlayerSkeleton extends client {
 
 			if (p.boardMaxHeight(s) - maxHeight > 0 && maxHeight != 0)
 			{
-				reward = "-1";
+				reward = "0";
 			}
 			maxHeight = p.boardMaxHeight(s);
+
+			if (p.getBoardHoles(s) - holes > 0)
+			{
+				reward = "-2";
+			}
+			holes = p.getBoardHoles(s);
 
 			if (linesCleared != s.getRowsCleared())
 			{
@@ -167,7 +248,7 @@ public class PlayerSkeleton extends client {
 			}
 			else if(s.hasLost())
 			{
-				reward = "-3";
+				reward = "0";
 				done = "true";
 			}
 			
@@ -180,10 +261,10 @@ public class PlayerSkeleton extends client {
 			//rendering env
 
 			//send next_state,reward,and done back to python
-			p.sendToPython(nxt_state);
+			//p.sendToPython(nxt_state);
 			p.sendToPython(reward);
 			p.sendToPython(done);
-			System.out.println("agent cleared: " + linesCleared + " lines!");
+			//System.out.println("agent cleared: " + linesCleared + " lines!");
 		}
 		
 		

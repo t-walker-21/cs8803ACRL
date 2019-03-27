@@ -8,7 +8,6 @@ from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from keras.optimizers import SGD
 
 EPISODES = 100000
 
@@ -42,16 +41,15 @@ class DQNAgent:
         self.gamma = 0.5    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.0
-        self.epsilon_decay = 0.9995
+        self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(8, input_dim=self.state_size, activation='sigmoid'))
-        #model.add(Dense(50, activation='sigmoid'))
-        #model.add(Dense(50, activation='sigmoid'))
+        model.add(Dense(25, input_dim=self.state_size, activation='sigmoid'))
+        model.add(Dense(25, activation='sigmoid'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=Adam(lr=self.learning_rate))
@@ -105,11 +103,32 @@ if __name__ == "__main__":
 
 
     state_size = 10#env.observation_space.shape
-    action_size = 40
+    action_size = 20
     
     
     agent = DQNAgent(state_size, action_size)
-    #agent.load("dqn.h5")
+    agent2 = DQNAgent(state_size, action_size)
+    agent3 = DQNAgent(20, 40)
+    agent4 = DQNAgent(20, 40)
+    agent5 = DQNAgent(20, 40)
+    agent6 = DQNAgent(20, 40)
+    agent7 = DQNAgent(20, 40)
+
+    agent.load("dqn1.h5")
+    agent2.load("dqn0.h5")
+    agent3.load("dqn2.h5")
+    agent4.load("dqn3.h5")
+    #agent5.load("dqn4.h5")
+    #agent6.load("dqn5.h5")
+    #agent7.load("dqn6.h5")
+
+    agent.epsilon = 0
+    agent2.epsilon = 0
+    agent3.epsilon = 0
+    agent4.epsilon = 0
+    #agent5.epsilon = 0
+    #agent6.epsilon = 0
+    #agent7.epsilon = 0
     done = False
     batch_size = 64
 
@@ -120,13 +139,49 @@ if __name__ == "__main__":
             state, _ = sock.recvfrom(1024) # buffer size is 1024 bytes
             state = stringStateToNN(state) #initial state
         
-        state = np.reshape(state, [1, state_size])
+        print state.shape
+        if (state.shape[0] == 20):
+            if (state[0] <= 1):
+                state = state[:10]
+                state = np.reshape(state, [1, state_size])
+
+            else:
+                state = np.reshape(state, [1, 20])
+
+        else:
+            if (state[0][0] <= 1):
+                state = state[:10]
+                state = np.reshape(state, [1, state_size])
+
+            else:
+                state = np.reshape(state, [1, 20])
+
         for time in range(1000):
             #env.render()
+            if (state[0][0] == 0):
+                action = agent2.act(state)
             
+            elif (state[0][0] == 1):
+                action = agent.act(state)
+
+            elif (state[0][0] == 2):
+                action = agent3.act(state)
+
+            elif (state[0][0] == 3):
+                action = agent4.act(state)
+
+            #elif (state[0][0] == 4):
+                #action = agent5.act(state)
+
+            #elif (state[0][0] == 5):
+                #action = agent6.act(state)
+
+            #elif (state[0][0] == 6):
+                #action = agent7.act(state)
+
             
-            action = agent.act(state)
-            #pytime.sleep(0.5)
+
+            pytime.sleep(1)
 	        #take the action
             #print "sending response: " , str(action)
             sock2.sendto(str(action),(UDP_IP,5006))
@@ -153,23 +208,31 @@ if __name__ == "__main__":
 
             #reward = reward if not done else -10
             next_state = stringStateToNN(nxtState)
-            next_state = np.reshape(next_state, [1, state_size])
+            if (next_state[0] <= 1):
+                next_state = next_state[:10]
+                next_state = np.reshape(next_state, [1, state_size])
+                
+
+            else:
+                next_state = np.reshape(next_state, [1, 20])
+
             agent.remember(state, action, reward, next_state, done)
             state = next_state
            
             if done:
-                print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, time, agent.epsilon))
+                print "episodes: ", time
+                #print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, time))#, agent.epsilon))
                 break
 
             
             if time > 995:
                 print "I beat the game!"
-                agent.save("./dqn4.h5")
+                #agent.save("./dqn0.h5")
                 exit()
 
             if len(agent.memory) > batch_size:
-                
-                agent.replay(batch_size)
+                pass
+                #agent.replay(batch_size)
 
-            if time % 20 == 0:
-                agent.save("./dqn4.h5")
+            #if e % 10 == 0:
+            #agent.save("./save/cartpole-dqn.h5")
