@@ -63,14 +63,20 @@ for _ in range(10000):
             tempDist = dist
             index = i
 
+    #print tempDist
+ 
+    if (tempDist < 1e-4):
+     continue
+
     unitVect = (new_point - points[index])/tempDist
+    
 
 
     scaledUnitVect = delta * unitVect
     scaledUnitVect = scaledUnitVect.astype(int)
 
 
-    #print unitVect
+    
     added_point = points[index] + scaledUnitVect
 
     if added_point[0] >= len(world):
