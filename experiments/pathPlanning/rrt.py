@@ -65,12 +65,12 @@ def DFS(g,startNode,goalNode):
 edges = []
 
 
-world = np.ones((500,500,3))
+world = np.ones((800,800,3))
 world2 = world[:][:][:] #for viz
-start = np.array((49,380))
-goal = np.array((70,400))
-obst = np.array((50,50,100,100))
-obst2 = np.array((80,200,288,210))
+start = np.array((49,680))
+goal = np.array((600,40))
+obst = np.array((50,50,600,100))
+obst2 = np.array((80,200,488,210))
 obst3 = np.array((200,200,400,300))
 
 
@@ -78,7 +78,7 @@ obst3 = np.array((200,200,400,300))
 
 
 
-delta = 7
+delta = 10
 points = []
 pointsHashed = []
 hashmap = {}
@@ -104,7 +104,7 @@ cv2.circle(world,(380,320),4,(0,0,0),-1)
 for _ in range(10000): 
 
 
-    if (np.random.random() > 0.99):
+    if (np.random.random() > 0.2):
         x,y = np.random.randint(1,len(world)-1,2)
     else:
         x = goal[0]
@@ -168,7 +168,7 @@ for _ in range(10000):
     
     cv2.line(world2,(points[index][0],points[index][1]),(added_point[0],added_point[1]),(0,0,0),1,1)
     cv2.circle(world2,(added_point[0],added_point[1]),1,(0,200,0),-1,1)
-    cv2.waitKey(5)
+    cv2.waitKey(1)
 
 
     world_disp = cv2.resize(world2,(700,700))
@@ -176,9 +176,9 @@ for _ in range(10000):
     
     #print np.linalg.norm(added_point-goal), added_point
     if (np.linalg.norm(added_point-goal) <= REACHED_THRESH):
-        print "done!"
-        print len(points)
-        print len(edges)
+        #print "done!"
+        #print len(points)
+        #print len(edges)
 
         graph = buildGraph(pointsHashed,edges)
         #print graph[str(points[0])]
@@ -189,14 +189,22 @@ for _ in range(10000):
         
         finalPath = []
 
-        for pt in path:
-            finalPath.append(hashmap[pt])
+        for pNum in range(len(path)-1):
+            temp = hashmap[path[pNum]]
+            temp2 = hashmap[path[pNum+1]]
+            cv2.line(world2,(temp[0],temp[1]),(temp2[0],temp2[1]),(20,0,20),3,1)
+            cv2.circle(world2,(temp[0],temp[1]),2,(0,200,0),1,1)
 
-        print finalPath
+            finalPath.append(temp)
+
+        #print finalPath
+
+
 
         break
 
     #cv2.waitKey(10)
+world_disp = cv2.resize(world2,(700,700))
 cv2.imshow("world",world_disp)
 cv2.waitKey(0)
 #pdb.set_trace()
