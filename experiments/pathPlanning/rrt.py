@@ -1,36 +1,94 @@
 import cv2
 import numpy as np
+import pdb
+import hashlib
+
 REACHED_THRESH = 9
 
 
 
-class Node:
-    def __init__(self,x,y):
-        self.edges = []
-        self.confx = x
-        self.confy = y
+def buildGraph(vertices,edges):
+ 
+ g = {}
+
+ for vert in vertices:
+  nodes = []
+  
+
+  for edge in edges:
+   if (vert == edge[0]):
+    #print vert,edge
+    nodes.append(edge[1])
+
+  g[vert] = nodes
+  
+ return g
+
+
+def DFS(g,startNode,goalNode):
+  queue = []
+  visited = []
+  maxQSize = 0
+
+  queue.append(startNode)
+    
+  while len(queue) != 0:
+    path = queue.pop(0)
+    node = path[-32:]
+    #print "node", node
+    if node == goalNode:
+      #print "Goal state found. Path is: ", path
+      return path, maxQSize
+    
+      
+    #get all edges of current node
+    e = g[node]
+    e = np.sort(np.array(e))
+    #print "bordering states-->", e   
+      
+    for edge in e:
+      #print edge
+      if not(edge in visited):
+        queue.insert(0,path+"-"+edge)
+        visited.append(edge)
+    
+    if not(node in visited):
+      visited.append(node)
+    #print "visited", visited
+    #print "queue", queue
+    #if len(queue) > maxQSize:
+      #maxQSize = len(queue)
+
+
+
+
+edges = []
 
 
 world = np.ones((500,500,3))
 world2 = world[:][:][:] #for viz
 start = np.array((49,380))
-goal = np.array((380,36))
+goal = np.array((70,400))
 obst = np.array((50,50,100,100))
 obst2 = np.array((80,200,288,210))
 obst3 = np.array((200,200,400,300))
 
-nodeList = []
-nodeList.append(Node(start[0],start[1]))
-nodeList.append(Node(goal[0],goal[1]))
 
 #print nodeList
 
 
 
-delta = 5
+delta = 7
 points = []
+pointsHashed = []
+hashmap = {}
+
+
+hashed = hashlib.md5(start).hexdigest()
+hashmap[hashed] = start
 
 points.append(start)
+pointsHashed.append(hashed)
 cv2.circle(world,(start[0],start[1]),2,(200,0,0),1,1)
 cv2.circle(world,(goal[0],goal[1]),2,(0,0,255),1,1)
 cv2.rectangle(world,(obst[0],obst[1]),(obst[2],obst[3]),(0,0,0),-1)
@@ -46,7 +104,7 @@ cv2.circle(world,(380,320),4,(0,0,0),-1)
 for _ in range(10000): 
 
 
-    if (np.random.random() > 0.1):
+    if (np.random.random() > 0.99):
         x,y = np.random.randint(1,len(world)-1,2)
     else:
         x = goal[0]
@@ -101,7 +159,12 @@ for _ in range(10000):
         #print "collision detected"
         continue
 
+
+    hashed = hashlib.md5(added_point).hexdigest()
+    hashmap[hashed] = added_point
     points.append(added_point)
+    pointsHashed.append(hashed)
+    edges.append([hashlib.md5(points[index]).hexdigest(),hashed])
     
     cv2.line(world2,(points[index][0],points[index][1]),(added_point[0],added_point[1]),(0,0,0),1,1)
     cv2.circle(world2,(added_point[0],added_point[1]),1,(0,200,0),-1,1)
@@ -114,8 +177,26 @@ for _ in range(10000):
     #print np.linalg.norm(added_point-goal), added_point
     if (np.linalg.norm(added_point-goal) <= REACHED_THRESH):
         print "done!"
+        print len(points)
+        print len(edges)
+
+        graph = buildGraph(pointsHashed,edges)
+        #print graph[str(points[0])]
+        startVert = hashlib.md5(start).hexdigest()
+        goalVert = hashlib.md5(added_point).hexdigest()
+        path,_ = DFS(graph,startVert,goalVert)
+        path = path.split("-")
+        
+        finalPath = []
+
+        for pt in path:
+            finalPath.append(hashmap[pt])
+
+        print finalPath
+
         break
 
     #cv2.waitKey(10)
 cv2.imshow("world",world_disp)
 cv2.waitKey(0)
+#pdb.set_trace()
