@@ -3,10 +3,10 @@
 %*****************************
 % Load map files and parameters
 %*****************************
-
 close all;
 clear all;
 clc;
+
 
 load map_1.mat;
 %load map_2.mat;
@@ -83,7 +83,9 @@ i
         display_environment;
     end
     counter = 0;
-    
+    action = 0;
+    sequence = 0;
+    points = [[6,30];[30,30]]
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
     counter = counter+1;
@@ -98,8 +100,26 @@ i
         
         
         % My example policy: slight turn
-        action = .1;
         
+        
+        
+        
+        data = [state.x;state.y;state.theta];
+        goalx = 7;
+        goaly = 25;
+        
+        command = "python python/interface.py " + num2str(state.x) + " " + num2str(state.y) + " " + num2str(state.theta) + " " + num2str(goalx) + " " + num2str(goaly);
+        
+        [status,result] = system(command);
+        result = str2num(result);
+        action = result;
+        display(action)
+        
+        display(state.x)
+        display(state.y)
+        %display(state.theta)
+        
+       
         % Notice how with this policy, when the car gets close to the
         % unknown bridge (in map_1), on the first map sample the bridge 
         % becomes solid black (closed), and on the second map sample the 
