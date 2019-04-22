@@ -66,18 +66,38 @@ edges = []
 
 
 mapIm = cv2.imread('../maps/map_1.png')
+mapIm2 = cv2.imread('../maps/map_1.png')
 mapIm = np.array(mapIm) / 255.0
+mapIm2 = np.array(mapIm2) / 255.0
+
+mapIm = (1-mapIm)
+
+kernel = np.ones((3,3),np.uint8)
+mapIm = cv2.dilate(mapIm,kernel,iterations = 3)
+mapIm = (1-mapIm)
+
+
 
 mapIm = cv2.resize(mapIm,(100,100))
-#print (mapIm[0][0][0])
-#cv2.imshow("world",mapIm)
-#cv2.waitKey(0)
+mapIm2 = cv2.resize(mapIm2,(100,100))
+
+for r in range(len(mapIm)):
+    for c in range(len(mapIm[0])):
+        for k in range(3):
+            if (mapIm[r][c][k] > 0):
+                mapIm[r][c][k] = 1
+
+print (mapIm[0][0][0])
+cv2.imshow("world",mapIm)
+cv2.imshow("worldUn",mapIm2)
+cv2.waitKey(0)
 
 
 
 
 #world = np.ones((800,800,3))
 world = mapIm
+worldCop = mapIm[:][:][:]
 world2 = world[:][:][:] #for viz
 start = np.array((10,10))
 goal = np.array((70,10))
@@ -202,19 +222,28 @@ for _ in range(10000):
         for pNum in range(len(path)-1):
             temp = hashmap[path[pNum]]
             temp2 = hashmap[path[pNum+1]]
-            cv2.line(world2,(temp[0],temp[1]),(temp2[0],temp2[1]),(20,0,20),1,1)
-            cv2.circle(world2,(temp[0],temp[1]),1,(0,200,0),1,1)
+            cv2.line(mapIm2,(temp[0],temp[1]),(temp2[0],temp2[1]),(20,0,20),1,1)
+            cv2.circle(mapIm2,(temp[0],temp[1]),1,(0,200,0),1,1)
 
             finalPath.append(temp)
 
         print finalPath
+
+        fout = open('path1.txt','w')
+        for pt in finalPath[1:]:
+            print pt[0]
+            fout.write(str(pt[0]/2) + "," + str(pt[1]/2) + "\n")
+
+        fout.close()
+
 
 
 
         break
 
     #cv2.waitKey(10)
-world_disp = cv2.resize(world2,(150,150))
+world_disp = cv2.resize(mapIm2,(150,150))
 cv2.imshow("world",world_disp)
+cv2.imwrite("path.png",world_disp*255)
 cv2.waitKey(0)
 #pdb.set_trace()

@@ -7,7 +7,7 @@ close all;
 clear all;
 clc;
 
-
+load('python/path1.txt')
 load map_1.mat;
 %load map_2.mat;
 %load map_3.mat;
@@ -85,7 +85,8 @@ i
     counter = 0;
     action = 0;
     sequence = 1;
-    points = [[6,42];[42,45];[45,10];[35,5]];
+    points = path1;
+    %points = [[[6,7];[8,7]]]
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
     counter = counter+1;
@@ -123,7 +124,7 @@ i
         
         error =  sqrt(sum((a-b).^2));
         
-        if (error < 0.5)
+        if (error < 6)
             sequence = sequence + 1;
         end
         
