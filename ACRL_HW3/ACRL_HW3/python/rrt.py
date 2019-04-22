@@ -3,7 +3,7 @@ import numpy as np
 import pdb
 import hashlib
 
-REACHED_THRESH = 9
+REACHED_THRESH = 5
 
 
 
@@ -65,15 +65,15 @@ def DFS(g,startNode,goalNode):
 edges = []
 
 
-mapIm = cv2.imread('../maps/map_1.png')
-mapIm2 = cv2.imread('../maps/map_1.png')
+mapIm = cv2.imread('../maps/map_3.png')
+mapIm2 = cv2.imread('../maps/map_3.png')
 mapIm = np.array(mapIm) / 255.0
 mapIm2 = np.array(mapIm2) / 255.0
 
 mapIm = (1-mapIm)
 
-kernel = np.ones((3,3),np.uint8)
-mapIm = cv2.dilate(mapIm,kernel,iterations = 3)
+kernel = np.ones((2,2),np.uint8)
+mapIm = cv2.dilate(mapIm,kernel,iterations = 2)
 mapIm = (1-mapIm)
 
 
@@ -99,8 +99,8 @@ cv2.waitKey(0)
 world = mapIm
 worldCop = mapIm[:][:][:]
 world2 = world[:][:][:] #for viz
-start = np.array((10,10))
-goal = np.array((70,10))
+start = np.array((20,16))
+goal = np.array((94,6))
 
 
 
@@ -108,7 +108,7 @@ goal = np.array((70,10))
 
 
 
-delta = 5
+delta = 4
 points = []
 pointsHashed = []
 hashmap = {}
@@ -226,6 +226,8 @@ for _ in range(10000):
             cv2.circle(mapIm2,(temp[0],temp[1]),1,(0,200,0),1,1)
 
             finalPath.append(temp)
+        
+        finalPath.append(goal/2)
 
         print finalPath
 

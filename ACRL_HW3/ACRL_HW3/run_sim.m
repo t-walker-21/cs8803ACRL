@@ -9,8 +9,8 @@ clc;
 
 load('python/path1.txt')
 load map_1.mat;
-%load map_2.mat;
-%load map_3.mat;
+load map_2.mat;
+load map_3.mat;
 
 load_sim_params;
 
@@ -124,7 +124,7 @@ i
         
         error =  sqrt(sum((a-b).^2));
         
-        if (error < 6)
+        if (error < 4)
             sequence = sequence + 1;
         end
         

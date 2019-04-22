@@ -25,7 +25,7 @@ def main():
 
 
 
-    error = (theta - angle) * -1.5
+    error = (theta - angle) * -2
 
     #print error
 
