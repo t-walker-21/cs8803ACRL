@@ -6,6 +6,45 @@ import hashlib
 REACHED_THRESH = 9
 
 
+def apply_model(x_in,y_in,theta_in,control):
+
+
+    d_theta_nom = 0.6
+    length = 3
+    width = 2
+    wb = 2.0
+    l_radius = 0.25
+    r_radius = 0.25
+    d_theta_max_dev = 0.2
+    d_theta_reverse = d_theta_nom/3
+    
+    r_dTheta = d_theta_nom + d_theta_max_dev*control
+    l_dTheta = d_theta_nom - d_theta_max_dev*control
+
+    R = r_radius * r_dTheta
+    L = l_radius * l_dTheta
+
+    x_out = 0
+    y_out = 0
+    theta_out = 0
+
+    #print R,L, "RL"
+
+    if R == L:
+        #print "same"
+        x_out = x_in + ((R+L) / 2) * np.cos(theta)
+        y_out = y_in + ((R+L) / 2) * np.sin(theta)
+
+    else:
+        x_out = x_in + wb/2 * (R+L)/(R-L) * (np.sin((R-L)/wb + theta) - np.sin(theta))
+        y_out = y_in - wb/2 * (R+L)/(R-L) * (np.cos((R-L)/wb + theta) - np.cos(theta))
+        
+    theta_out  = theta_in + (R-L)/wb
+
+
+    return x_out,y_out,theta_out
+
+
 
 def buildGraph(vertices,edges):
  
@@ -67,8 +106,8 @@ edges = []
 
 world = np.ones((800,800,3))
 world2 = world[:][:][:] #for viz
-start = np.array((49,680))
-goal = np.array((600,40))
+start = np.array((49,680,0))
+goal = np.array((600,40,0))
 obst = np.array((50,50,600,100))
 obst2 = np.array((80,200,488,210))
 obst3 = np.array((200,200,400,300))
@@ -106,12 +145,14 @@ for _ in range(10000):
 
     if (np.random.random() > 0.2):
         x,y = np.random.randint(1,len(world)-1,2)
+        theta = np.random.normal(-2*np.pi,2*np.pi)
     else:
         x = goal[0]
         y = goal[1]
+        theta = 0
 
 
-    new_point = np.array((x,y))
+    new_point = np.array((x,y,theta))
     tempDist = 1000
     index = None
     unitVect = None
@@ -129,45 +170,65 @@ for _ in range(10000):
     unitVect = (new_point - points[index])/tempDist
     
 
-
     scaledUnitVect = delta * unitVect
-    scaledUnitVect = scaledUnitVect.astype(int)
+    scaledUnitVect[0] = int(scaledUnitVect[0])
+    scaledUnitVect[1] = int(scaledUnitVect[1])
 
 
     
-    added_point = points[index] + scaledUnitVect
+    
+    
+    
+    random_point = points[index] + scaledUnitVect
 
-    if added_point[0] >= len(world):
-        added_point[0] = len(world) - 1
+    print "random conf: " , random_point
 
-    elif added_point[0] < 0:
-        added_point[0] = 0
+    
+
+    if random_point[0] >= len(world):
+        random_point[0] = len(world) - 1
+
+    elif random_point[0] < 0:
+        random_point[0] = 0
 
 
-    if added_point[1] >= len(world):
-        added_point[1] = len(world) - 1
+    if random_point[1] >= len(world):
+        random_point[1] = len(world) - 1
 
-    elif added_point[1] < 0:
-        added_point[1] = 0
+    elif random_point[1] < 0:
+        random_point[1] = 0
+
+    if random_point[3] > 2*np.pi:
+        random_point[3] -= 2*np.pi
+
+    elif random_point[3] < -2*np.pi:
+        random_point[3] += 2*np.pi
+        
+
+    #now that I've sampled a random configuration within some delta of the current configuration,
+    #generate a control that gets the closest to this random configuration.
+
+    controls = np.random.normal
+
 
         
      
     #print "hard check: " , world[380][320]
     #print world[added_point[0]][added_point[1]]
     #print added_point
-    if (world[added_point[1]][added_point[0]] != [1,1,1]).all() or (world[added_point[1]][added_point[0]] != [0,0,1]).all():
+    if (world[random_point[1]][random_point[0]] != [1,1,1]).all() or (world[random_point[1]][random_point[0]] != [0,0,1]).all():
         #print "collision detected"
         continue
 
 
-    hashed = hashlib.md5(added_point).hexdigest()
-    hashmap[hashed] = added_point
-    points.append(added_point)
+    hashed = hashlib.md5(random_point).hexdigest()
+    hashmap[hashed] = random_point
+    points.append(random_point)
     pointsHashed.append(hashed)
     edges.append([hashlib.md5(points[index]).hexdigest(),hashed])
     
-    cv2.line(world2,(points[index][0],points[index][1]),(added_point[0],added_point[1]),(0,0,0),1,1)
-    cv2.circle(world2,(added_point[0],added_point[1]),1,(0,200,0),-1,1)
+    cv2.line(world2,(points[index][0],points[index][1]),(random_point[0],random_point[1]),(0,0,0),1,1)
+    cv2.circle(world2,(random_point[0],random_point[1]),1,(0,200,0),-1,1)
     cv2.waitKey(1)
 
 
@@ -175,7 +236,7 @@ for _ in range(10000):
     cv2.imshow("world",world_disp)
     
     #print np.linalg.norm(added_point-goal), added_point
-    if (np.linalg.norm(added_point-goal) <= REACHED_THRESH):
+    if (np.linalg.norm(random_point-goal) <= REACHED_THRESH):
         #print "done!"
         #print len(points)
         #print len(edges)
