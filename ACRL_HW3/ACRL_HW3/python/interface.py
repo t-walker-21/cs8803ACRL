@@ -19,6 +19,9 @@ def main():
     if (xDiff < 0 and yDiff > 0):
         angle += 180 * np.pi / 180
 
+    elif (xDiff < 0 and yDiff < 0):
+        angle -= 180 * np.pi / 180
+
 
 
 

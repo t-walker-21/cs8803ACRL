@@ -85,7 +85,7 @@ i
     counter = 0;
     action = 0;
     sequence = 1;
-    points = [[6,45];[45,45];[45,6]];
+    points = [[6,42];[42,45];[45,10];[35,5]];
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
     counter = counter+1;
