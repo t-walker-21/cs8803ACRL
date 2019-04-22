@@ -84,8 +84,8 @@ i
     end
     counter = 0;
     action = 0;
-    sequence = 0;
-    points = [[6,30];[30,30]]
+    sequence = 1;
+    points = [[6,45];[45,45];[45,6]];
     % loop until maxCount has been reached or goal is found
     while (state.moveCount < params.max_moveCount && flags ~= 2)
     counter = counter+1;
@@ -105,18 +105,31 @@ i
         
         
         data = [state.x;state.y;state.theta];
-        goalx = 7;
-        goaly = 25;
+        goalx = points(sequence,1);
+        goaly = points(sequence,2);
         
         command = "python python/interface.py " + num2str(state.x) + " " + num2str(state.y) + " " + num2str(state.theta) + " " + num2str(goalx) + " " + num2str(goaly);
         
         [status,result] = system(command);
         result = str2num(result);
         action = result;
-        display(action)
+        display(action);
         
         display(state.x)
         display(state.y)
+        
+        a = [state.x;state.y];
+        b = [goalx;goaly];
+        
+        error =  sqrt(sum((a-b).^2));
+        
+        if (error < 0.5)
+            sequence = sequence + 1;
+        end
+        
+        display(error)
+        
+        
         %display(state.theta)
         
        
