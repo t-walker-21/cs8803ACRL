@@ -9,8 +9,8 @@ clc;
 
 load('python/path1.txt')
 load map_1.mat;
-load map_2.mat;
-load map_3.mat;
+%load map_2.mat;
+%load map_3.mat;
 
 load_sim_params;
 
