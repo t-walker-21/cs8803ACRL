@@ -30,6 +30,7 @@ private:
     QGraphicsLineItem* down;
     QGraphicsLineItem* left;
     QGraphicsLineItem* right;
+    QGraphicsLineItem* lidar;
     void applyMotionModel(float x_in,float y_in, float theta_in,float contLin, float contAng,float* x_out, float* y_out,float* theta_out);
     float x_in,x_out,y_in,y_out,theta_in,theta_out;
     void resetBot();

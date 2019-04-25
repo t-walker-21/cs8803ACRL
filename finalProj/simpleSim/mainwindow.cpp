@@ -16,13 +16,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     blackPen.setWidth(6);
 
-    //ellipse = scene->addEllipse(-250,-50,70,70,blackPen,redBrush);
+    ellipse = scene->addEllipse(-250,-50,1,1,blackPen,redBrush);
 
-    rect = scene->addRect(-500,0,50,10,blackPen,blueBrush);
+    rect = scene->addRect(-800,0,50,10,blackPen,blueBrush);
+
     top = scene->addLine(-900,-400,100,-400);
     down = scene->addLine(-900,200,100,200);
     left = scene->addLine(-880,-400,-880,200);
     right = scene->addLine(90,-400,90,200);
+
+    lidar = scene->addLine(-750,5,-700,5);
 
     ui->graphicsView->setFixedHeight(800);
     ui->graphicsView->setFixedWidth(1000);
@@ -49,20 +52,31 @@ void MainWindow::moveBot()
 
     applyMotionModel(x_in,y_in,theta_in,0.0,0.0,&x_out,&y_out,&theta_out);
 
-    qDebug() << "y_now: " << this->rect->y();
-    qDebug() << "x_now: " << this->rect->x();
+   //qDebug() << "y_now: " << this->rect->y();
+   //qDebug() << "x_now: " << this->rect->x();
 
+    qDebug() << "rect: " << rect->mapFromScene(800,0) << endl;
+    //qDebug() << "point: " << ellipse->scenePos() << endl;
+    //qDebug() << rect->rotation() << endl;
+
+
+    //ellipse->setPos(lidar->mapFromScene(-800,0));
+    //ellipse->setY(lidar->scenePos().y());
 
     //this->rect->setX(x_out);
     //this->rect->setY(y_out);
     //this->rect->setX(-435);
-    this->rect->moveBy(5,0);
+
+    this->rect->moveBy(1,0);
+    this->lidar->moveBy(1,0);
+
     //this->rect->setTransformOriginPoint(QPoint((-500+this->rect->x())+25,5));
     //this->rect->setRotation(this->rect->rotation() + 1);
-    x_in = x_out;
-    y_in = y_out;
-    theta_in = theta_out;
+    //x_in = x_out;
+    //y_in = y_out;
+    //theta_in = theta_out;
     //rect->rotate(this->rect->rotation()+1);
+    //lidar->setRotation(this->rect->rotation()+1);
 
     //qDebug() << "x_out: " << x_out;
 
@@ -85,6 +99,9 @@ void MainWindow::resetBot()
     this->rect->setX(0);
     this->rect->setY(0);
     this->rect->setRotation(0);
+    this->lidar->setY(0);
+    this->lidar->setX(0);
+    this->lidar->setRotation(0);
 }
 
 
